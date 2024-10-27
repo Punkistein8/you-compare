@@ -193,7 +193,10 @@ def to_int(string):
 def get_duration_sec(pt):
     '''Turn duration from text string such as 'PT1H23M09S' to an int of seconds'''
     pattern = 'PT(\d*H)?(\d*M)?(\d*S)?'
-    timestamp = [to_int(x) for x in re.findall(pattern, pt)[0]]
+    match = re.findall(pattern, pt)
+    if not match:
+        return 0
+    timestamp = [to_int(x) for x in match[0]]
     duration_sec = timestamp[0] * 3600 + timestamp[1] * 60 + timestamp[2]
     return duration_sec
 
@@ -485,77 +488,10 @@ def comment_list_to_dict(reply_comments_snippets):
 
 
 def get_all_comments(youtube, video_id):
-
-    logger.info('Starting to get comment threads')
-    # Get list of snippets of threads
-    thread_snippets = get_comment_threads(youtube, part="snippet,replies", video_id=video_id)
-    logger.info('Done getting comment threads')
-
-    # Check if the thread comments have more than 5 replies and if true append the id to a dict
-    thread_ids_with_more_replies = {}
-    already_downloaded_replies = {}
-
-    # Loop through threads and search for >5 replies
-    for t_id in thread_snippets:
-        if t_id['snippet']['totalReplyCount'] > 5:
-
-            # Wite parent_id of threads with >5 replies to dict index
-            thread_ids_with_more_replies[t_id['id']] = True
-
-            # This print statement tries to evaluate an error, that I couldn't fix yet
-            logger.info(t_id['id'], 'has more than 5 replies')
-            if t_id.get('replies') != None:
-
-                # Write reply id to dict
-                for reply_id in t_id['replies']['comments']:
-                    already_downloaded_replies[reply_id['id']] = True
-            else:
-                # This print statement tries to evaluate an error, that I couldn't fix yet
-                logger.info(f"* * * * * {t_id['id']} would throw a key error for 'replies' * * * * * ")
-
-    # Get a list of reply ids for thread ids with more than 5 replies
-    # Slice list into strings of 50 ids each
-    strings_of_thread_ids_with_more_replies = list_slice(list(thread_ids_with_more_replies), n=50)
-
-    # Create empty dict for reply ids
-    reply_ids = {}
-
-    # Loop through thread ids with >5 replies
-    logger.info('Start getting reply comment ids, that were not downloaded yet')
-    for id_string in thread_ids_with_more_replies:
-        # Get the reply ids
-        replies = get_comments_list(youtube, part="id", parent_id=id_string, id=None)
-        # Write the reply ids into a dict, if they are not downlaoded yet
-        for r_id in replies['items']:
-            if r_id['id'] not in already_downloaded_replies:
-                reply_ids[r_id['id']] = True
-    logger.info('Done getting reply comment ids, that were not downloaded yet')
-
-    # Create a list with id strings
-    strings_of_reply_ids = list_slice(list(reply_ids), n=50)
-
-    # Create empty list for new reply snippets
-    reply_snippets = []
-
-    # Get reply snippets, that were not downloaded yet
-    logger.info('Start downloading reply comments, that were not downloaded yet')
-    for id_string in strings_of_reply_ids:
-        r_snippets = get_comments_list(youtube, part="snippet", parent_id=None, id=id_string)
-        reply_snippets += r_snippets['items']
-    logger.info('Done downloading reply comments, that were not downloaded yet')
-
-    # Create an empty list for already downloaded replies (that came with threads)
-    already_downloaded_replies = []
-
-    # Loop through threads and search for >0 replies
-    for t_id in thread_snippets:
-        # Add already downloaded replies to list
-        if t_id['snippet']['totalReplyCount'] > 0:
-            already_downloaded_replies += t_id['replies']['comments']
-
-    # Add thread snippets + reply snippets together
-    all_snippets = thread_snippets + reply_snippets + already_downloaded_replies
-    return all_snippets
+    '''Return a .json with all comments and meta data. Take as input the youtube credential object and the videoId.\n
+    Quota costs: id: 0, replies: 2, snippet: 2'''
+    all_comments = get_comment_threads(youtube, video_id=video_id, part="id,replies,snippet")
+    return all_comments
 
 def extract_comments(comments):
     '''Extract comments from a json file.Return a dictionary. Take as input the result of function "get_all_comments()"'''

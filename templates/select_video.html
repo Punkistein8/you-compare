@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 
-  <p><h2 class="card-title">Analyse Video Comments</h2></p>
+  <p><h2 class="card-title">Analizar comentarios de videos</h2></p>
   <p></p>
-  <p><h5 class="card-title">Search Results for "{{ query }}"</h5></p>
+  <p><h5 class="card-title">Buscar resultados para "{{ query }}"</h5></p>
   <p></p>
 
   {% for item in query_result['items'] %}
@@ -24,14 +24,14 @@
             <div class="test">
               <h5 class="card-title">Video: {{ item['snippet']['title'] }}</h5>
               <p class="card-text">
-                <p>Channel: {{ item['snippet']['channelTitle'] }}</p>
-                <p>Comments: {{ item['statistics']['commentCount'] }}</p>
+                <p>Canal: {{ item['snippet']['channelTitle'] }}</p>
+                <p>Comentarios: {{ item['statistics']['commentCount'] }}</p>
                 <p>Likes: {{ item['statistics']['likeCount'] }}</p>
                 <p>Dislikes: {{ item['statistics']['dislikeCount'] }}</p>
               </p>
               <form class="" action="">
                 <a href="/video_comments?video_id={{ item['id']['videoId'] }}">
-                  <button type="button" class="btn btn-primary">See video comment analysis</button>
+                  <button type="button" class="btn btn-primary">Ver el análisis de comentarios</button>
                 </a>
               </form>
 

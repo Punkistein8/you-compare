@@ -21,9 +21,9 @@ def barplot_channel_video_count(df_all, channel_ids):
     plt.figure(figsize=(FIG_W, FIG_H))
     df_all.groupby('channel_title').size().sort_values(ascending=False).plot.bar()
     plt.xticks(rotation=ROT)
-    plt.xlabel("Channel Name")
-    plt.ylabel("Video Count")
-    plt.title('Video Counts per Channel', fontdict = {'fontsize' : TS})
+    plt.xlabel("Nombre del Canal")
+    plt.ylabel("Cantidad de Videos")
+    plt.title('Cantidad de videos por canal', fontdict = {'fontsize' : TS})
     plt.savefig(image_name, dpi=100)
 
     return image_name
@@ -45,16 +45,17 @@ def histogram_video_duration_count(df_all, channel_ids):
         video_durations = df_all[df_all['channel_title'] == channel]['duration_min'].to_numpy()
         data.append(video_durations)
 
-    # Create image name
+    # Crear nombre de img
     channel_ids_string = '_'.join(channel_ids)
     image_name = f'static/images/{channel_ids_string}_histogram_video_duration_count.png'
 
     plt.figure(figsize=(FIG_W, FIG_H))
     plt.hist(data, bins=bin_size, alpha=0.5)
-    plt.legend(labels)
-    plt.xlabel('Duration of videos in minutes')
-    plt.ylabel('Videos count')
-    plt.title('Video counts of durations', fontdict = {'fontsize' : TS})
+    plt.legend(labels) 
+    plt.xlabel('Duración de los videos en minutos')
+    plt.ylabel('Cantidad de videos')
+    plt.title('Recuento de vídeos y duraciones', fontdict = {'fontsize' : TS})
+
     plt.savefig(image_name, dpi=100)
 
     return image_name
@@ -80,9 +81,9 @@ def histogram_video_duration_count_single(df_all, channel_id, channel_title=None
     plt.figure(figsize=(FIG_W, FIG_H))
     plt.hist(df_all['duration_min'], bins=bin_size, alpha=0.5, edgecolor='black', linewidth=1)
     plt.legend(df_all['channel_title'].unique())
-    plt.title(f'Video Counts of Durations for "{channel_title}"', fontdict = {'fontsize' : TS})
-    plt.xlabel('Video Duration in Minutes')
-    plt.ylabel('Video Count')
+    plt.title(f'Contador duracion por video para "{channel_title}"', fontdict = {'fontsize' : TS})
+    plt.xlabel('Duracion del video en minutos')
+    plt.ylabel('Contador de videos')
     plt.xlim(0,bin_size)
     plt.savefig(image_name, dpi=100)
 
@@ -92,7 +93,7 @@ def barplot_links(video_df, channel_ids):
     '''Create a barplot with counts on how many video descriptions hae clickable links. Save the plot as image.'''
 
     # Check if there is 'http' in description and insert result
-    video_df['Links in decription'] = video_df['description'].str.contains('http').apply(lambda x: 'Clickable Link' if x else 'No clickable Link')
+    video_df['Links in decription'] = video_df['description'].str.contains('http').apply(lambda x: 'Links Clickables' if x else 'Links No Clickables')
 
     channel_ids_string = '_'.join(channel_ids)
     image_name = f'static/images/{channel_ids_string}_barplot_links.png'
@@ -108,8 +109,8 @@ def barplot_links(video_df, channel_ids):
                     palette="muted"
     )
     g.despine(left=True)
-    g.set_xlabels("Channel Name")
-    g.set_ylabels("Video Count")
+    g.set_xlabels("Nombre del Canal")
+    g.set_ylabels("Contador de videos")
     # g.set_title('Links in Video Descriptions', fontdict = {'fontsize' : TS})
     plt.savefig(image_name, dpi=100)
 
@@ -146,7 +147,7 @@ def create_wordcloud(text, stopwords=STOPWORDS,video_id=None, channel_title=None
         title = video_id
 
     plt.figure(figsize = (FIG_W, FIG_H))
-    plt.title(f'Wordcloud for "{title}"', fontdict = {'fontsize' : TS})
+    plt.title(f'Nube de palabras más usadas para "{title}"', fontdict = {'fontsize' : TS})
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
     plt.savefig(image_name, dpi=100)
@@ -181,13 +182,13 @@ def lineplot_cumsum_video_comments(comment_sentiment, video_id):
     plt.title('Cumulative sum of comments over time', fontdict = {'fontsize' : TS})
     plt.xlabel('Date')
     plt.ylabel('Sum of comments')
-    plt.grid(b=True)
+    plt.grid(True)
     plt.savefig(image_name, dpi=100)
 
     return image_name
 
 def lineplot_cumsum_video_comments_pos_neg(comment_sentiment, pos_sent, neg_sent, video_id):
-    '''Create and save a lineplot for the cumsum of positive and negative sentiments of video comments over time seperately. Return image name.'''
+    '''Create and save a lineplot for the cumsum of positive and negative sentiments of video comments over time separately. Return image name.'''
 
     image_name = f'static/images/{video_id}_lineplot_cumsum_video_comments_pos_neg.png'
 
@@ -199,7 +200,7 @@ def lineplot_cumsum_video_comments_pos_neg(comment_sentiment, pos_sent, neg_sent
     plt.xlabel('Date')
     plt.ylabel('Sum of comments')
     plt.xticks(rotation=ROT)
-    plt.grid(b=True)
+    plt.grid(True)
     plt.savefig(image_name, dpi=100)
 
     return image_name
@@ -218,7 +219,7 @@ def scatterplot_sentiment_likecount(comment_sentiment, pos_sent, neg_sent, video
     plt.xlabel('Sentiment')
     plt.ylabel('Logarithm of Like count')
     plt.legend()
-    plt.grid(b=True)
+    plt.grid(True)
     fig.savefig(image_name, dpi=100)
 
     return image_name

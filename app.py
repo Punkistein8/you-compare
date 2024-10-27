@@ -11,7 +11,8 @@ handler = logging.StreamHandler(sys.stderr)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-API_KEY = os.getenv('YOUTUBE_API_KEY')
+# API_KEY = os.getenv('YOUTUBE_API_KEY')
+API_KEY = "AIzaSyCR6BEEh5S3OPChro6KjJBsQ30qVETd7GE"
 
 app = Flask(__name__)
 
@@ -43,7 +44,7 @@ def video_comments():
     logger.info('Getting all comments')
     all_snippets = ydt.get_all_comments(youtube, video_id)
     logger.info('Writing comments to dict')
-    comment_dict = ydt.extract_comments(all_snippets)
+    comment_dict = ydt.extract_comments(all_snippets) # Based on this comment_dict, we can generate a wordcloud and ask chatGPT to generate an analysis
 
     image_names = []
     logger.info('Generating wordcloud')
@@ -56,8 +57,27 @@ def video_comments():
     image_names.append(viz.lineplot_cumsum_video_comments(comment_sentiment2, video_id))
     image_names.append(viz.lineplot_cumsum_video_comments_pos_neg(comment_sentiment2, pos_sent, neg_sent, video_id))
     image_names.append(viz.scatterplot_sentiment_likecount(comment_sentiment2, pos_sent, neg_sent, video_id))
+    # Ensure 'like_count' and sentiment columns are numeric
+    comment_sentiment2['like_count'] = pd.to_numeric(comment_sentiment2['like_count'], errors='coerce')
+    
+    # Check the actual sentiment column names in the DataFrame
+    actual_sentiment_columns = [col for col in comment_sentiment2.columns if 'sentiment' in col]
+    
+    for col in actual_sentiment_columns:
+        comment_sentiment2[col] = pd.to_numeric(comment_sentiment2[col], errors='coerce')
+
+    # Drop rows with NaN values in 'like_count' or sentiment columns
+    comment_sentiment2 = comment_sentiment2.dropna(subset=['like_count'] + actual_sentiment_columns)
+
     # Calculate correlation
-    like_count_sentiment_corr = round(comment_sentiment2.corr().loc['like_count'][5],2)
+    try:
+        like_count_sentiment_corr = round(comment_sentiment2.corr().loc['like_count'][actual_sentiment_columns[0]], 2)
+    except KeyError as e:
+        logger.error(f"KeyError: {e}")
+        like_count_sentiment_corr = None
+    except ValueError as e:
+        logger.error(f"ValueError: {e}")
+        like_count_sentiment_corr = None
 
     return render_template(
         'video_comments.html',

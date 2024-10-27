@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-  <p><h2 class="card-title">Please select the channels you want to analyze</h2></p>
+  <p><h2 class="card-title">Por favor selecciona los canales que deseas analizar:</h2></p>
   <p></p>
 
   <form class="" action="/channels">
   <p></p>
 
     {% for query in query_results %}
-      <p><h5 class="card-title">Please select a channel from the search results for "{{ query }}"</h5></p>
+      <p><h5 class="card-title">Selecciona un canal para los resultados de "{{ query }}"</h5></p>
         <fieldset>
 
           {% for item in query_results[query]['items'] %}
@@ -28,7 +28,7 @@
                   <div class="card-body">
                     <div class="test">
 
-                      <h5 class="card-title">Channel: {{ item['snippet']['title'] }}</h5>
+                      <h5 class="card-title">Canal: {{ item['snippet']['title'] }}</h5>
                       <p class="card-text"></p>
                       <p>
                         <input
@@ -49,7 +49,7 @@
       <hr>
     {% endfor %}
 
-    <p><input type="submit" class="btn btn-primary" value="Compare channels now"></p>
+    <p><input type="submit" class="btn btn-primary" value="Comparar canales!"></p>
 
   </form>
 
